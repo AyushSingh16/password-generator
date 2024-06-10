@@ -41,8 +41,10 @@ const symbols = '~!@#$`%^&*()_+-={}|[]:;<>?/';
 // on start 
 let password = "";
 let passwordLength = 10;
-let checkCount = 1;  //only one check was enabled by default
+let checkCount = 0;  //only one check was enabled by default
 
+//set strength circle to grey
+setIndicator('#ccc');
 
 handleSlider();
 
@@ -101,7 +103,7 @@ function calcStrength(){
     {
         setIndicator("#0f0");
     }
-    else if((haslower || hasUpper) && (hasNum || hasSym) && passwordLength >= 6)
+    else if((hasLower || hasUpper) && (hasNum || hasSym) && passwordLength >= 6)
     {
         setIndicator("#ff0");
     }
@@ -132,6 +134,144 @@ async function copyContent(){
 }
 
 
-function generatePassword(){
-    
+// adding event listeners 
+
+inputSlider.addEventListener('input',(e) => {
+    passwordLength = e.target.value;
+    handleSlider();
+})
+
+copyBtn.addEventListener('click',() => {
+    if(passwordDisplay.value)
+        {
+            copyContent();
+        }
+})
+
+function shufflePassword(array){
+    // algorithm for shuffling - Fisher Yates method
+
+    for(let i = array.length - 1; i > 0; i--)
+    {
+        const j = Math.floor(Math.random() * (i+1));
+        const temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+
+    let str = "";
+    array.forEach((el) => (str += el));
+    return str;
+
 }
+
+function handleCheckBoxChange(){
+    checkCount = 0;
+    allCheckBox.forEach((checkbox) => {
+        if(checkbox.checked)
+            {
+                checkCount++;
+            }
+    });
+
+    //special condition
+    if(passwordLength < checkCount)
+        {
+            passwordLength = checkCount;
+            handleSlider();
+        }
+}
+
+allCheckBox.forEach((checkbox) => {
+    checkbox.addEventListener('change',handleCheckBoxChange)
+})
+ 
+
+generateBtn.addEventListener('click',() => {
+
+    //none of the checkboxes are selected
+    if(checkCount == 0)
+        {
+            return;
+        }
+    
+    if(passwordLength < checkCount)
+        {
+            passwordLength = checkCount;
+            handleSlider();
+        }
+
+    // let's start the journey to find the new password
+
+    // remove old password
+
+    password = "";
+
+    // putting the stuff mentioned by checkboxes
+    
+    // if(upperCaseCheck.checked)
+    //     {
+    //         password += generateUpperCase();
+    //     }
+
+    // if(lowerCaseCheck.checked)
+    //     {
+    //         password += generateLowerCase();
+    //     }
+
+    // if(numbersCheck.checked)
+    //     {
+    //         password += generateRandomNumber();
+    //     }
+         
+    // if(symbolsCheck.checked)
+    //     {
+    //         password += generateSymbol();
+    //     }
+
+
+    let functionArray = [];
+    if(upperCaseCheck.checked)
+        {
+            functionArray.push(generateUpperCase);
+        }
+    
+    if(lowerCaseCheck.checked)
+        {
+            functionArray.push(generateLowerCase);
+        }
+            
+    if(symbolsCheck.checked)
+        {
+            functionArray.push(generateSymbol);
+        }
+                
+    if(numbersCheck.checked)
+        {
+            functionArray.push(generateRandomNumber);
+        }
+
+    // compulsory addition
+
+    for(let i = 0; i < functionArray.length; i++)
+        {
+            password += functionArray[i]();
+        }
+
+    // remaining addition
+
+    for(let i = 0; i < passwordLength - functionArray.length; i++)
+        {
+            let randIndex = getRandInteger(0,functionArray.length);         
+            password += functionArray[randIndex]();
+        }
+
+    // shuffle the password
+    password = shufflePassword(Array.from(password));
+
+    // show in UI 
+    passwordDisplay.value = password;
+    //calculate strength
+    calcStrength();
+
+});
