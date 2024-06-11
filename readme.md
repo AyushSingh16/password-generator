@@ -26,4 +26,4 @@ To run the website locally, TailWind CSS must be configured on your machine and 
 
 The website design and content is based from the M.E.R.N. Stack Master Course of Love Babbar  with some modifications to fit the scope of this project.
 
-In future, you would be able to see some more modifications, till then , Stay tuned!.
+In future, you would be able to see some more modifications to enhance this project and make it unique, so till then , Stay tuned!.
